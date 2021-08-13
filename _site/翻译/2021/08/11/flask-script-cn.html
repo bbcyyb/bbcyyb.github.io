@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Flask-Script参考手册 | Your awesome title</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Flask-Script参考手册" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Flask-Script 扩展为Flask应用添加了一个命令行解析器，它使Flask应用可以通过命令行来运行服务器，自定义Python shell，以及通过脚本来设置数据库、周期性任务以及其它Flask应用本身不提供的功能。" />
+<meta property="og:description" content="Flask-Script 扩展为Flask应用添加了一个命令行解析器，它使Flask应用可以通过命令行来运行服务器，自定义Python shell，以及通过脚本来设置数据库、周期性任务以及其它Flask应用本身不提供的功能。" />
+<link rel="canonical" href="http://0.0.0.0:4000/%E7%BF%BB%E8%AF%91/2021/08/11/flask-script-cn.html" />
+<meta property="og:url" content="http://0.0.0.0:4000/%E7%BF%BB%E8%AF%91/2021/08/11/flask-script-cn.html" />
+<meta property="og:site_name" content="Your awesome title" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-08-11T15:00:00-04:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Flask-Script参考手册" />
+<script type="application/ld+json">
+{"description":"Flask-Script 扩展为Flask应用添加了一个命令行解析器，它使Flask应用可以通过命令行来运行服务器，自定义Python shell，以及通过脚本来设置数据库、周期性任务以及其它Flask应用本身不提供的功能。","headline":"Flask-Script参考手册","dateModified":"2021-08-11T15:00:00-04:00","datePublished":"2021-08-11T15:00:00-04:00","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://0.0.0.0:4000/%E7%BF%BB%E8%AF%91/2021/08/11/flask-script-cn.html"},"url":"http://0.0.0.0:4000/%E7%BF%BB%E8%AF%91/2021/08/11/flask-script-cn.html","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://0.0.0.0:4000/feed.xml" title="Your awesome title" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Your awesome title</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Flask-Script参考手册</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2021-08-11T15:00:00-04:00" itemprop="datePublished">Aug 11, 2021
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>Flask-Script 扩展为Flask应用添加了一个命令行解析器，它使Flask应用可以通过命令行来运行服务器，自定义Python shell，以及通过脚本来设置数据库、周期性任务以及其它Flask应用本身不提供的功能。</p>
+
+<p>Flask-Script跟Flask工作的方式很相似，通过给Manage实例对象定义和添加命令，然后就可以在命令行中调用这些，命令了。</p>
+
+<pre><code class="language-Python"># manage.py
+
+from flask.ext.script import Manager
+
+from myapp import app
+
+manager = Manager(app)
+
+@manager.command
+def hello():
+    print "hello"
+
+if __name__ == "__main__":
+    manager.run()
+</code></pre>
+
+<p>运行下面的代码，结果如下：</p>
+
+<pre><code class="language-Python">python manage.py hello
+&gt; hello
+</code></pre>
+
+<h2 id="安装flask-script">安装Flask-Script</h2>
+
+<p>通过pip来安装Flask-Script:</p>
+
+<pre><code class="language-Python">pip install Flask-Script
+</code></pre>
+
+<p>或者直接从github上下载最新的源代码进行安装：</p>
+
+<pre><code class="language-Python">git clone https://github.com/smurfix/flask-script.git
+cd flask-script
+python setup.py develop
+</code></pre>
+
+<h2 id="定义并运行命令">定义并运行命令</h2>
+
+<p>首先创建一个Python模块来运行脚本命令，文件名为manage.py。</p>
+
+<p>如果是命令比较多的话，可以将它们分开放在几个文件中存放。</p>
+
+<p>在manage.py中必须创建一个Manager对象，Manager类会记录所有的命令，并处理如何调用这些命令。</p>
+
+<pre><code class="language-Python">from flask.ext.script import Manager
+
+app = Flask(__name__)
+# configure your app
+
+manager = Manager(app)
+
+if __name__ == "__main__":
+    manager.run()
+</code></pre>
+
+<p>调用manager.run()方法之后，Manager对象就准备好接收命令行传递的命令了。</p>
+
+<p>Manager实例的时候需要传递一个Flask对象给它，这个参数也可以是一个函数或者可调用对象，只要它们能够返回一个Flask对象就可以。</p>
+
+<p>下一步就是创建和添加命令，可以通过以下三种方式来创建命令</p>
+
+<ul>
+  <li>继承Command类</li>
+  <li>使用@command修饰器</li>
+  <li>使用@option修饰器</li>
+</ul>
+
+<p>比方说，我们创建一个简单的hello命令，它会输出”hello, world”信息，它不需要传递任何参数进去，所以比较简单。</p>
+
+<h3 id="方式1">方式1</h3>
+
+<pre><code class="language-Python">from flask.ext.script import Command
+
+class Hello(Command):
+    "prints hello world"
+
+    def run(self):
+        print "hello world"
+</code></pre>
+
+<p>然后给manager对象添加命令：</p>
+
+<pre><code class="language-Python">manager.add_command('hello', Hello())
+</code></pre>
+
+<p>这条语句必须在<code class="language-plaintext highlighter-rouge">manage.run()</code>之前执行，接下来就可以执行命令了：</p>
+
+<pre><code class="language-Python">python manage.py hello
+&gt; hello world
+</code></pre>
+
+<p>也可以直接将<code class="language-plaintext highlighter-rouge">Command</code>对象传递给<code class="language-plaintext highlighter-rouge">manager.run()</code>：</p>
+
+<pre><code class="language-Python">manager.run({'hello' : Hello()})
+</code></pre>
+
+<p>Command类必须定义一个<code class="language-plaintext highlighter-rouge">run()</code>方法，方法中的位置参数以及可选参数来由命令行中输入的参数来决定。</p>
+
+<p>使用下面的命令获取可用命令以及详细说明：</p>
+
+<pre><code class="language-Python">python manage.py
+</code></pre>
+
+<p>使用下面的命令获取指定命令的帮助信息：</p>
+
+<pre><code class="language-Python">python manage.py runserver -？
+</code></pre>
+
+<p>上面的代码会输出<code class="language-plaintext highlighter-rouge">runserver</code>命令的用法以及Command类中的文档注释。</p>
+
+<p>这种方法比较灵活，但是也很冗长，对于简单的命令，我们可以使用@command修饰器：</p>
+
+<h3 id="方法2">方法2</h3>
+
+<pre><code class="language-Python">@manager.command
+def hello():
+    "Just say hello"
+    print "hello"
+</code></pre>
+
+<p>这种方法得到的结果与方法一的结果一致:</p>
+
+<pre><code class="language-Python">python manage.py hello
+&gt; hello
+</code></pre>
+
+<p>一样的，使用下面的命令获取帮助：</p>
+
+<pre><code class="language-Python">python manage.py -?
+&gt; Just say hello
+</code></pre>
+
+<h3 id="方法3">方法3</h3>
+
+<p>最后，使用@option修饰器，如果想对命令进行更加复杂的控制，可以使用这种方法：</p>
+
+<pre><code class="language-Python">@manager.option('-n', '--name', help='Your name')
+def hello(name):
+    print "hello", name
+</code></pre>
+
+<p>在后面，我们会详细讲解@option的用法。</p>
+
+<p>帮助信息可以通过<code class="language-plaintext highlighter-rouge">--help</code>或者<code class="language-plaintext highlighter-rouge">-h</code>实现查询，但是预期的结果可能不太理想，因为<code class="language-plaintext highlighter-rouge">-h</code>也可以用作<code class="language-plaintext highlighter-rouge">--host</code>的简写，导致Flask无法进行区分。</p>
+
+<p>如果你想恢复<code class="language-plaintext highlighter-rouge">-h</code>的原始用法，可以给manager对象的<code class="language-plaintext highlighter-rouge">help_args</code>设置你想用的参数，例如：</p>
+
+<pre><code class="language-Python">manager = Manager()
+manager.help_args = ('-h','-?','--help')
+</code></pre>
+
+<p>可以在<code class="language-plaintext highlighter-rouge">sub-command</code>或者<code class="language-plaintext highlighter-rouge">manager</code>中重写列表</p>
+
+<pre><code class="language-Python">def talker(host='localhost'):
+    pass
+ccmd = ConnectCmd(talker)
+ccmd.help_args = ('-?','--help')
+manager.add_command("connect", ccmd)
+manager.run()
+</code></pre>
+
+<p>这样的话，<code class="language-plaintext highlighter-rouge">manager -h</code> 将输出帮助信息，而<code class="language-plaintext highlighter-rouge">manager connect -h www.example.com</code> 将连接远程主机。</p>
+
+<h2 id="给命令添加参数">给命令添加参数</h2>
+
+<p>大多数命令都可以接收可选参数。以上面的hello命令为例，我们可以给它增加一个输出名字的功能：</p>
+
+<pre><code class="language-Python">python manage.py hello --name=Joe
+hello Joe
+</code></pre>
+
+<p>或者：</p>
+
+<pre><code class="language-Python">python manage.py hello -n Joe
+</code></pre>
+
+<p>为了实现这个功能，可以使用Command类的option_list属性：</p>
+
+<pre><code class="language-Python">from flask.ext.script import Command, Manager, Option
+
+class Hello(Command):
+
+    option_list = (
+        Option('--name', '-n', dest='name'),
+    )
+
+    def run(self, name):
+        print "hello %s" % name
+</code></pre>
+
+<p>可选参数保存在Option中。</p>
+
+<p>或者，可以在Command类中定义一个get_option()方法：</p>
+
+<pre><code class="language-Python">class Hello(Command):
+
+    def __init__(self, default_name='Joe'):
+        self.default_name=default_name
+
+    def get_options(self):
+        return [
+            Option('-n', '--name', dest='name', default=self.default_name),
+        ]
+
+    def run(self, name):
+        print "hello",  name
+</code></pre>
+
+<p>如果你使用@command修饰器，那就更简单了，options参数可以从函数参数中自动提取出来。</p>
+
+<pre><code class="language-Python">@manager.command
+def hello(name):
+    print "hello", name
+</code></pre>
+
+<p>然后这样调用命令：</p>
+
+<pre><code class="language-Python">&gt; python manage.py hello Joe
+hello Joe
+</code></pre>
+
+<p>也可以传递格外的参数：</p>
+
+<pre><code class="language-Python">@manager.command
+def hello(name="Fred")
+    print "hello", name
+</code></pre>
+
+<p>调用方式如下：</p>
+
+<pre><code class="language-Python">&gt; python manage.py hello --name=Joe
+hello Joe
+</code></pre>
+
+<p>或者:</p>
+
+<pre><code class="language-Python">&gt; python manage.py hello -n Joe
+hello Joe
+</code></pre>
+
+<p>缩写格式是参数的第一个字母，所以<code class="language-plaintext highlighter-rouge">name</code>对应为<code class="language-plaintext highlighter-rouge">-n</code>,为了避免混淆，不同的参数首字母最好不同。</p>
+
+<p>注意可选参数为布尔值类型的话：</p>
+
+<pre><code class="language-Python">@manager.command
+def verify(verified=False):
+    """
+    Checks if verified
+    """
+    print "VERIFIED?", "YES" if verified else "NO"
+</code></pre>
+
+<p>那就可以这样调用：</p>
+
+<pre><code class="language-Python">&gt; python manage.py verify
+VERIFIED? NO
+
+&gt; python manage.py verify -v
+VERIFIED? YES
+
+&gt; python manage.py verify --verified
+VERIFIED? YES
+</code></pre>
+
+<p><code class="language-plaintext highlighter-rouge">@command</code>修饰器对于大多数简单的命令来说已经足够用了，但是如果你想更加的灵活的进行配置，推荐使用<code class="language-plaintext highlighter-rouge">@option</code>修饰器。</p>
+
+<pre><code class="language-Python">@manager.option('-n', '--name', dest='name', default='joe')
+def hello(name):
+    print "hello", name
+</code></pre>
+
+<p>还可以添加多个配置参数：</p>
+
+<pre><code class="language-Python">@manager.option('-n', '--name', dest='name', default='joe')
+@manager.option('-u', '--url', dest='url', default=None)
+def hello(name, url):
+    if url is None:
+        print "hello", name
+    else:
+        print "hello", name, "from", url
+</code></pre>
+
+<p>调用方式如下：</p>
+
+<pre><code class="language-Python">&gt; python manage.py hello -n Joe -u reddit.com
+hello Joe from reddit.com
+</code></pre>
+
+<p>或者：</p>
+
+<pre><code class="language-Python">&gt; python manage.py hello --name=Joe --url=reddit.com
+hello Joe from reddit.com
+</code></pre>
+
+<h2 id="给manager添加配置参数">给manager添加配置参数</h2>
+
+<p>配置参数也可以直接传递给Manager对象，这样你就可以直接传递配置参数给应用，而不是单独的命令。例如，你可能需要通过一个标志来设置应用的配置文件，假设你使用工程模式创建应用：</p>
+
+<pre><code class="language-Python">def create_app(config=None):
+
+    app = Flask(__name__)
+    if config is not None:
+        app.config.from_pyfile(config)
+    # configure your app...
+    return app
+</code></pre>
+
+<p>你想直接在命令行中指定配置文件。为了传递config参数，使用Manager对象的<code class="language-plaintext highlighter-rouge">add_option()</code>方法，它的参数与Option一样。</p>
+
+<pre><code class="language-Python">manager.add_option('-c', '--config', dest='config', required=False)
+</code></pre>
+
+<p>注意这个方法必须在<code class="language-plaintext highlighter-rouge">manager.run()</code>方法之前调用。
+假设你定义了以下命令：</p>
+
+<pre><code class="language-Python">@manager.command
+def hello(name):
+    uppercase = app.config.get('USE_UPPERCASE', False)
+    if uppercase:
+        name = name.upper()
+    print "hello", name
+</code></pre>
+
+<p>那么可以这样调用：</p>
+
+<pre><code class="language-Python">&gt; python manage.py -c dev.cfg hello joe
+hello JOE
+</code></pre>
+
+<p>前提你在dev.cfg文件中设置了<code class="language-plaintext highlighter-rouge">USE_UPPERCASE=True</code>。</p>
+
+<p>注意<code class="language-plaintext highlighter-rouge">config</code>参数不是传递给<code class="language-plaintext highlighter-rouge">hello</code>，如果这样调用的话，会报错：</p>
+
+<pre><code class="language-Python">&gt; python manage.py hello joe -c dev.cfg
+</code></pre>
+
+<p>因为<code class="language-plaintext highlighter-rouge">-c</code>参数不属于<code class="language-plaintext highlighter-rouge">hello</code>命令。</p>
+
+<p>可以给命令和manager添加相同名字的参数，而不会产生冲突，例如：</p>
+
+<pre><code class="language-Python">@manager.option('-n', '--name', dest='name', default='joe')
+@manager.option('-c', '--clue', dest='clue', default='clue')
+def hello(name,clue):
+    uppercase = app.config.get('USE_UPPERCASE', False)
+    if uppercase:
+        name = name.upper()
+        clue = clue.upper()
+    print "hello {0}, get a {1}!".format(name,clue)
+
+&gt; python manage.py -c dev.cfg hello -c cookie -n frank
+hello FRANK, get a COOKIE!
+</code></pre>
+
+<p>注意<code class="language-plaintext highlighter-rouge">dest</code>的名字必须不同。</p>
+
+<p>为了让manager的参数奏效，必须使用Flask的工厂模式创建应用。</p>
+
+<h2 id="获取用户输入">获取用户输入</h2>
+
+<p>Flask-Script提供了很多方法来帮助用户从命令行中获取输入信息，例如：</p>
+
+<pre><code class="language-Python">from flask.ext.script import Manager, prompt_bool
+
+from myapp import app
+from myapp.models import db
+
+manager = Manager(app)
+
+@manager.command
+def dropdb():
+    if prompt_bool(
+        "Are you sure you want to lose all your data"):
+        db.drop_all()
+</code></pre>
+
+<p>调用方式如下：</p>
+
+<pre><code class="language-Python">&gt; python manage.py dropdb
+Are you sure you want to lose all your data ? [N]
+</code></pre>
+
+<h2 id="默认命令">默认命令</h2>
+
+<p>** runserver **</p>
+
+<p>Flask-Script自身提供了很多定义好的命令，例如<code class="language-plaintext highlighter-rouge">Server</code>和<code class="language-plaintext highlighter-rouge">Shell</code>。
+<code class="language-plaintext highlighter-rouge">Server</code>命令用于运行Flask应用服务器：</p>
+
+<pre><code class="language-Python">from flask.ext.script import Server, Manager
+from myapp import create_app
+
+manager = Manager(create_app)
+manager.add_command("runserver", Server())
+
+if __name__ == "__main__":
+    manager.run()
+</code></pre>
+
+<p>调用方式如下：</p>
+
+<pre><code class="language-Python">python manage.py runserver
+</code></pre>
+
+<p><code class="language-plaintext highlighter-rouge">Server</code>命令有许多参数，可以通过<code class="language-plaintext highlighter-rouge">python manager.py runserver -?</code>来获取详细帮助信息，也可以在构造函数中重定义默认值：</p>
+
+<pre><code class="language-Python">server = Server(host="0.0.0.0", port=9000)
+</code></pre>
+
+<p>大多数情况下，<code class="language-plaintext highlighter-rouge">runserver</code>命令用于开启调试模型运行服务器，以便查找bug，因此，如果没有在配置文件中特别声明的话，<code class="language-plaintext highlighter-rouge">runserver</code>默认是开启调试模式的，当修改代码的时候，会自动重载服务器。</p>
+
+<h3 id="shell">shell</h3>
+
+<p><code class="language-plaintext highlighter-rouge">Shell</code>命令用于打开一个Python终端，你可以给它传递一个<code class="language-plaintext highlighter-rouge">make_context</code>参数，这个参数必须是一个可调用对象，并且返回一个字典。</p>
+
+<pre><code class="language-Python">from flask.ext.script import Shell, Manager
+
+from myapp import app
+from myapp import models
+from myapp.models import db
+
+def _make_context():
+    return dict(app=app, db=db, models=models)
+
+manager = Manager(create_app)
+manager.add_command("shell", Shell(make_context=_make_context))
+</code></pre>
+
+<p>这个命令非常有帮助，尤其是当你需要从shell中引入很多模块的时候，它可以节省很多时间。</p>
+
+<p><code class="language-plaintext highlighter-rouge">Shell</code>命令默认使用IPython，如果已经安装了的话，否则使用默认的Python终端，当然那你也可以禁用这个功能，给<code class="language-plaintext highlighter-rouge">Shell</code>构造函数传递<code class="language-plaintext highlighter-rouge">use_ipython</code>参数，或者在命令中使用<code class="language-plaintext highlighter-rouge">--no-ipython</code>。</p>
+
+<pre><code class="language-Python">shell = Shell(use_ipython=False)
+</code></pre>
+
+<p>还可以使用<code class="language-plaintext highlighter-rouge">@manager.shell</code>修饰器:</p>
+
+<pre><code class="language-Python">@manager.shell
+def make_shell_context():
+    return dict(app=app, db=db, models=models)
+</code></pre>
+
+<p>调用方式跟默认的一样：</p>
+
+<pre><code class="language-Python">&gt; python manage.py shell
+</code></pre>
+
+<p><code class="language-plaintext highlighter-rouge">shell</code>命令以及<code class="language-plaintext highlighter-rouge">runserver</code>命令默认被加载，如果你想要覆盖这些命令，可以使用<code class="language-plaintext highlighter-rouge">add_command（）</code>或者修饰器，如果你传递<code class="language-plaintext highlighter-rouge">with_default_commands=Flase</code>给Manager构造函数，这些命令就不会加载了。</p>
+
+<pre><code class="language-Python">manager = Manager(app, with_default_commands=False)
+</code></pre>
+
+<h2 id="sub-managers">Sub-Managers</h2>
+
+<p>Sub-Manager是Manager的实例对象，它用于给另外一个Manager添加命令。</p>
+
+<pre><code class="language-Python">def sub_opts(app, **kwargs):
+    pass
+sub_manager = Manager(sub_opts)
+
+manager = Manager(self.app)
+manager.add_command("sub_manager", sub_manager)
+</code></pre>
+
+<p>如果给<code class="language-plaintext highlighter-rouge">sub_manager</code>添加选项，<code class="language-plaintext highlighter-rouge">sub_opts</code>会接收相应选项值。应用通过app传递给<code class="language-plaintext highlighter-rouge">sub_manager</code>。</p>
+
+<p>如果<code class="language-plaintext highlighter-rouge">sub_opts</code>返回值非空，那么这个值会覆盖app传递的值，这样你就可以创建一个sub-manager来替换整个应用。其一个用途就是创建一个独立的管理应用，如下所示：</p>
+
+<pre><code class="language-Python">def gen_admin(app, **kwargs):
+    from myweb.admin import MyAdminApp
+    ## easiest but possibly incomplete way to copy your settings
+    return MyAdminApp(config=app.config, **kwargs)
+sub_manager = Manager(gen_admin)
+
+manager = Manager(MyApp)
+manager.add_command("admin", sub_manager)
+
+&gt; python manage.py runserver
+[ starts your normal server ]
+&gt; python manage.py admin runserver
+[ starts an administrative server ]
+</code></pre>
+
+<h2 id="扩展开发">扩展开发</h2>
+
+<p>使用sub-manager可以很方便的创建扩展，下面是创建一个数据库扩展的例子:</p>
+
+<pre><code class="language-Python">manager = Manager(usage="Perform database operations")
+
+@manager.command
+def drop():
+    "Drops database tables"
+    if prompt_bool("Are you sure you want to lose all your data"):
+        db.drop_all()
+
+
+@manager.command
+def create(default_data=True, sample_data=False):
+    "Creates database tables from sqlalchemy models"
+    db.create_all()
+    populate(default_data, sample_data)
+
+
+@manager.command
+def recreate(default_data=True, sample_data=False):
+    "Recreates database tables (same as issuing 'drop' and then 'create')"
+    drop()
+    create(default_data, sample_data)
+
+
+@manager.command
+def populate(default_data=False, sample_data=False):
+    "Populate database with default data"
+    from fixtures import dbfixture
+
+    if default_data:
+        from fixtures.default_data import all
+        default_data = dbfixture.data(*all)
+        default_data.setup()
+
+    if sample_data:
+        from fixtures.sample_data import all
+        sample_data = dbfixture.data(*all)
+        sample_data.setup()
+</code></pre>
+
+<p>然后用户就可以将sub-manager注册到Manager上。</p>
+
+<pre><code class="language-Python">manager = Manager(app)
+
+from flask.ext.database import manager as database_manager
+manager.add_command("database", database_manager)
+</code></pre>
+
+<p>调用方式如下：</p>
+
+<pre><code class="language-Python">&gt; python manage.py database
+
+ Please provide a command:
+
+ Perform database operations
+  create    Creates database tables from sqlalchemy models
+  drop      Drops database tables
+  populate  Populate database with default data
+  recreate  Recreates database tables (same as issuing 'drop' and then 'create')
+</code></pre>
+
+<h2 id="异常处理">异常处理</h2>
+
+<p>虽然用户不希望看到异常信息，但是开发者希望可以-看到以便调试。因此，<code class="language-plaintext highlighter-rouge">flask.ext.script.commands</code>提供了一个异常类<code class="language-plaintext highlighter-rouge">InvalidCommand</code>来输出异常信息。</p>
+
+<p>命令处理函数：</p>
+
+<pre><code class="language-Python">from flask.ext.script.commands import InvalidCommand
+
+[… if some command verification fails …]
+class MyCommand(Command):
+    def run(self, foo=None,bar=None):
+        if foo and bar:
+                raise InvalidCommand("Options foo and bar are incompatible")
+</code></pre>
+
+<p>在主循环中：</p>
+
+<pre><code class="language-Python">try:
+    MyManager().run()
+except InvalidCommand as err:
+    print(err, file=sys.stderr)
+    sys.exit(1)
+</code></pre>
+
+<h2 id="访问本地代理">访问本地代理</h2>
+
+<p><code class="language-plaintext highlighter-rouge">Manager</code>运行在<code class="language-plaintext highlighter-rouge">Flask test context</code>上下文环境中，也就是说你可以访问本地请求代理，如<code class="language-plaintext highlighter-rouge">current_app</code>。</p>
+
+  </div><a class="u-url" href="/%E7%BF%BB%E8%AF%91/2021/08/11/flask-script-cn.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Your awesome title</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Your awesome title</li><li><a class="u-email" href="mailto:your-email@example.com">your-email@example.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/jekyll"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">jekyll</span></a></li><li><a href="https://www.twitter.com/jekyllrb"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">jekyllrb</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
